@@ -1,13 +1,12 @@
 {
-  "name": "table-dragger-made",
-  "version": "1.0.1",
+  "name": "@upyun/table-dragger-made",
+  "version": "1.0.2",
   "description": "Drag and sort columns and rows of table",
-  "author": "femaker@126.com",
+  "author": "lin.xiao@upai.com",
   "main": "dist/table-dragger.js",
   "repository": {
     "type": "git"
   },
-  "homepage": "https://github.com/SallyOne/table-dragger",
   "directories": {
     "src": "src/"
   },
