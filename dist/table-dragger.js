@@ -110,7 +110,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	// module
-	exports.push([module.id, ".sindu_dragger {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n  box-sizing: border-box;\n}\n\n.sindu_handle {\n  cursor: move;\n}\n\n.sindu_dragger li {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  text-align: inherit;\n}\n\n.sindu_dragger li table, .sindu_dragger tr, .sindu_dragger th, .sindu_dragger td {\n  box-sizing: border-box;\n}\n\n.gu-mirror {\n  list-style: none;\n}\n\n.sindu_dragger.sindu_column li {\n  float: left;\n}\n\n.sindu_dragging .sindu_origin_table {\n  visibility: hidden;\n}\n\n.gu-mirror {\n  position: fixed !important;\n  margin: 0 !important;\n  z-index: 9999 !important;\n  opacity: 0.8;\n}\n\n.gu-mirror li {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  text-align: inherit;\n}\n\n.gu-mirror li table, .gu-mirror tr, .gu-mirror th, .gu-mirror td {\n  box-sizing: border-box;\n}\n\n.gu-hide {\n  display: none !important;\n}\n\n.gu-unselectable {\n  -webkit-user-select: none !important;\n  -moz-user-select: none !important;\n  -ms-user-select: none !important;\n  user-select: none !important;\n}\n\n.gu-transit {\n  opacity: 0.5;\n}\n", ""]);
+	exports.push([module.id, ".sindu_dragger {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n  box-sizing: border-box;\n}\n\n.sindu_handle {\n  cursor: move;\n}\n\n.sindu_dragger table{\n  background: red;\n}\n\n.sindu_dragger li {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  text-align: inherit;\n}\n\n.sindu_dragger li table, .sindu_dragger tr, .sindu_dragger th, .sindu_dragger td {\n  box-sizing: border-box;\n}\n\n.gu-mirror {\n  list-style: none;\n}\n\n.sindu_dragger.sindu_column li {\n  float: left;\n}\n\n.sindu_dragging .sindu_origin_table {\n  visibility: hidden;\n}\n\n.gu-mirror {\n  position: fixed !important;\n  margin: 0 !important;\n  z-index: 9999 !important;\n  opacity: 0.8;\n}\n\n.gu-mirror li {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  text-align: inherit;\n}\n\n.gu-mirror li table, .gu-mirror tr, .gu-mirror th, .gu-mirror td {\n  box-sizing: border-box;\n}\n\n.gu-hide {\n  display: none !important;\n}\n\n.gu-unselectable {\n  -webkit-user-select: none !important;\n  -moz-user-select: none !important;\n  -ms-user-select: none !important;\n  user-select: none !important;\n}\n\n.gu-transit {\n  opacity: 0.5;\n}\n", ""]);
 	
 	// exports
 
@@ -896,7 +896,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var VALUES_BUG = false;
 	  var proto = Base.prototype;
 	  var $native = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT];
-	  var $default = $native || getMethod(DEFAULT);
+	  var $default = (!BUGGY && $native) || getMethod(DEFAULT);
 	  var $entries = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined;
 	  var $anyNative = NAME == 'Array' ? proto.entries || $native : $native;
 	  var methods, key, IteratorPrototype;
@@ -1026,7 +1026,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 17 */
 /***/ (function(module, exports) {
 
-	var core = module.exports = { version: '2.5.1' };
+	var core = module.exports = { version: '2.5.3' };
 	if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 
 
@@ -1672,6 +1672,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var enumKeys = __webpack_require__(63);
 	var isArray = __webpack_require__(66);
 	var anObject = __webpack_require__(22);
+	var isObject = __webpack_require__(23);
 	var toIObject = __webpack_require__(38);
 	var toPrimitive = __webpack_require__(28);
 	var createDesc = __webpack_require__(29);
@@ -1864,15 +1865,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return _stringify([S]) != '[null]' || _stringify({ a: S }) != '{}' || _stringify(Object(S)) != '{}';
 	})), 'JSON', {
 	  stringify: function stringify(it) {
-	    if (it === undefined || isSymbol(it)) return; // IE8 returns string on undefined
 	    var args = [it];
 	    var i = 1;
 	    var replacer, $replacer;
 	    while (arguments.length > i) args.push(arguments[i++]);
-	    replacer = args[1];
-	    if (typeof replacer == 'function') $replacer = replacer;
-	    if ($replacer || !isArray(replacer)) replacer = function (key, value) {
-	      if ($replacer) value = $replacer.call(this, key, value);
+	    $replacer = replacer = args[1];
+	    if (!isObject(replacer) && it === undefined || isSymbol(it)) return; // IE8 returns string on undefined
+	    if (!isArray(replacer)) replacer = function (key, value) {
+	      if (typeof $replacer == 'function') value = $replacer.call(this, key, value);
 	      if (!isSymbol(value)) return value;
 	    };
 	    args[1] = replacer;
@@ -2502,7 +2502,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.drake = (0, _dragulaWithAnimation2.default)([this.el], {
 	      animation: 300,
 	      staticClass: _classes2.default.static,
-	      direction: mode === 'column' ? 'horizontal' : 'vertical'
+	      direction: mode === 'column' ? 'horizontal' : 'vertical',
+	      accepts: function accepts(el, target, source, sibling) {
+	        return sibling === null || sibling.querySelector(options.dragHandler);
+	      }
 	    }).on('drag', this.onDrag).on('dragend', this.onDragend).on('shadow', this.onShadow).on('out', this.onOut);
 	
 	    this.renderEl();
@@ -2511,20 +2514,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  (0, _createClass3.default)(Dragger, [{
 	    key: 'onDrag',
-	    value: function onDrag() {
+	    value: function onDrag(el) {
 	      (0, _util.css)(document.body, { overflow: 'hidden' });
 	      var barWidth = (0, _util.getScrollBarWidth)();
 	      this.dragger.dragging = true;
+	      var index = this.index;
 	      if (barWidth) {
 	        (0, _util.css)(document.body, { 'padding-right': barWidth + bodyPaddingRight + 'px' });
 	      }
 	      (0, _util.touchy)(document, 'remove', 'mouseup', this.destroy);
-	      this.dragger.emit('drag', this.originTable.el, this.options.mode);
+	      this.dragger.emit('drag', el, index, this.originTable.el, this.options.mode);
 	    }
 	  }, {
 	    key: 'onDragend',
 	    value: function onDragend(droppedItem) {
-	      var originEl = this.originTable.el,
+	      var _originTable = this.originTable,
+	          originEl = _originTable.el,
+	          options = _originTable.options,
 	          dragger = this.dragger,
 	          index = this.index,
 	          mode = this.mode,
@@ -2534,8 +2540,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.dragger.dragging = false;
 	      var from = index;
 	      var to = (0, _from2.default)(el.children).indexOf(droppedItem);
+	      var filterList = (0, _from2.default)(el.children).filter(function (li) {
+	        return li.querySelector(options.dragHandler);
+	      });
+	      var filterTo = filterList.indexOf(droppedItem);
 	      this.destroy();
-	      dragger.emit('drop', from, to, originEl, mode);
+	      dragger.emit('drop', droppedItem, from, to, filterTo, originEl, mode);
 	    }
 	  }, {
 	    key: 'onShadow',
@@ -2715,7 +2725,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    });
 	
-	    var organ = row.parentNode.cloneNode();
+	    var organ = row.parentElement.cloneNode();
 	    organ.innerHTML = '';
 	    organ.appendChild(row.cloneNode(true));
 	    cTable.appendChild(organ);
@@ -4351,8 +4361,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var empty = exports.empty = function empty(node) {
-	  while (node.firstChild) {
-	    node.removeChild(node.firstChild);
+	  while (node.firstElementChild) {
+	    node.removeChild(node.firstElementChild);
 	  }
 	};
 	var on = exports.on = function on(el, eventName, cb) {
@@ -4372,7 +4382,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 	
-	  (parent || target.parentNode).insertBefore(target, origin ? origin.nextElementSibling : null);
+	  (parent || target.parentElement).insertBefore(target, origin ? origin.nextElementSibling : null);
 	};
 	
 	var insertBeforeSibling = exports.insertBeforeSibling = function insertBeforeSibling(_ref2) {
@@ -4382,7 +4392,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (!target) {
 	    return;
 	  }
-	  origin.parentNode.insertBefore(target, origin);
+	  origin.parentElement.insertBefore(target, origin);
 	};
 	
 	var sort = exports.sort = function sort(_ref3) {

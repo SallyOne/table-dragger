@@ -1,6 +1,3 @@
-/**
- * Created by lijun on 2016/12/8.
- */
 import dragula from 'dragula-with-animation';
 import classes from './classes';
 import {
@@ -46,6 +43,9 @@ export default class Dragger {
       animation: 300,
       staticClass: classes.static,
       direction: mode === 'column' ? 'horizontal' : 'vertical',
+      accepts: function (el, target, source, sibling) {
+        return sibling === null || sibling.querySelector(options.dragHandler);
+      }
     })
       .on('drag', this.onDrag)
       .on('dragend', this.onDragend)
@@ -56,25 +56,30 @@ export default class Dragger {
     this.dispatchMousedown();
   }
 
-  onDrag () {
+  onDrag (el) {
     css(document.body, { overflow: 'hidden' });
     const barWidth = getScrollBarWidth();
     this.dragger.dragging = true;
+    const index = this.index;
     if (barWidth) {
       css(document.body, { 'padding-right': `${barWidth + bodyPaddingRight}px` });
     }
     touchy(document, 'remove', 'mouseup', this.destroy);
-    this.dragger.emit('drag', this.originTable.el, this.options.mode);
+    this.dragger.emit('drag', el, index, this.originTable.el, this.options.mode);
   }
 
   onDragend (droppedItem) {
-    const { originTable: { el: originEl }, dragger, index, mode, el } = this;
+    const { originTable: { el: originEl, options }, dragger, index, mode, el } = this;
     css(document.body, { overflow: bodyOverflow, 'padding-right': `${bodyPaddingRight}px` });
     this.dragger.dragging = false;
     const from = index;
     const to = Array.from(el.children).indexOf(droppedItem);
+    var filterList = Array.from(el.children).filter(li => {
+        return li.querySelector(options.dragHandler);
+    });
+    var filterTo = filterList.indexOf(droppedItem);
     this.destroy();
-    dragger.emit('drop', from, to, originEl, mode);
+    dragger.emit('drop', droppedItem, from, to, filterTo, originEl, mode);
   }
 
   onShadow (draggingItem) {
